@@ -28,19 +28,24 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // server.listen(3004, () => {
 //   console.log("server listening to 3000");
 // });
+require("reflect-metadata");
 const express_1 = __importDefault(require("express"));
-const employee_router_1 = __importDefault(require("./employee_router"));
+// import employeeRouter from "./employee_router";
 const loggerMiddleware_1 = __importDefault(require("./loggerMiddleware"));
-const data_source_1 = __importDefault(require("./data-source"));
+const employee_route_1 = __importDefault(require("./routes/employee.route"));
+const data_source_1 = __importDefault(require("./db/data-source"));
+const errorMiddleware_1 = require("./errorMiddleware");
+// import datasource from "./data-source";
 const { Client } = require("pg");
 const server = (0, express_1.default)();
 server.use(express_1.default.json());
 server.use(loggerMiddleware_1.default);
-server.use("/employee", employee_router_1.default);
+server.use("/employee", employee_route_1.default);
 server.get("/", (req, res) => {
     console.log(req.url);
     res.status(200).send("Hello world typescript");
 });
+server.use(errorMiddleware_1.errorMiddleware);
 // Database connection configuration
 // const dbConfig = {
 //   user: "postgres",
@@ -70,7 +75,7 @@ server.get("/", (req, res) => {
         console.error("failed to conned db");
         process.exit(1);
     }
-    server.listen(3005, () => {
+    server.listen(3004, () => {
         console.log("server listening to 3000");
     });
 }))();

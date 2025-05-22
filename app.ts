@@ -17,13 +17,19 @@
 // server.listen(3004, () => {
 //   console.log("server listening to 3000");
 // });
+import "reflect-metadata";
+
 import express from "express";
-import employeeRouter from "./employee_router";
+// import employeeRouter from "./employee_router";
 import loggerMiddleware from "./loggerMiddleware";
-import datasource from "./data-source";
+import employeeRouter from "./routes/employee.route";
+import datasource from "./db/data-source";
+import { errorMiddleware } from "./errorMiddleware";
+// import datasource from "./data-source";
 const { Client } = require("pg");
 
 const server = express();
+
 server.use(express.json());
 server.use(loggerMiddleware);
 
@@ -33,7 +39,7 @@ server.get("/", (req, res) => {
   console.log(req.url);
   res.status(200).send("Hello world typescript");
 });
-
+server.use(errorMiddleware);
 // Database connection configuration
 // const dbConfig = {
 //   user: "postgres",
@@ -65,7 +71,7 @@ server.get("/", (req, res) => {
     console.error("failed to conned db");
     process.exit(1);
   }
-  server.listen(3005, () => {
+  server.listen(3004, () => {
     console.log("server listening to 3000");
   });
 })();
