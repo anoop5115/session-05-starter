@@ -21,20 +21,26 @@ import "reflect-metadata";
 
 import express from "express";
 // import employeeRouter from "./employee_router";
-import loggerMiddleware from "./loggerMiddleware";
+import loggerMiddleware from "./middlewares/loggerMiddleware";
 import employeeRouter from "./routes/employee.route";
 import datasource from "./db/data-source";
-import { errorMiddleware } from "./errorMiddleware";
+
+import { authRouter } from "./routes/auth.route";
+
+import { LoggerService } from "./services/logging.service";
+import departmentRouter from "./routes/department.route";
+import { authMiddleware } from "./middlewares/auth.middleware";
+import { errorMiddleware } from "./middlewares/errorMiddleware";
 // import datasource from "./data-source";
 const { Client } = require("pg");
-
+const logger = LoggerService.getInstance("app()");
 const server = express();
 
 server.use(express.json());
 server.use(loggerMiddleware);
-
-server.use("/employee", employeeRouter);
-
+server.use("/auth", authRouter);
+server.use("/employee", authMiddleware, employeeRouter);
+server.use("/department", departmentRouter);
 server.get("/", (req, res) => {
   console.log(req.url);
   res.status(200).send("Hello world typescript");
@@ -66,12 +72,12 @@ server.use(errorMiddleware);
 (async () => {
   try {
     await datasource.initialize();
-    console.log("connected");
+    logger.info("connected");
   } catch {
-    console.error("failed to conned db");
+    logger.error("failed to conned db");
     process.exit(1);
   }
-  server.listen(3004, () => {
-    console.log("server listening to 3000");
+  server.listen(3006, () => {
+    logger.info("server listening to 3000");
   });
 })();

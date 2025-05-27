@@ -1,7 +1,19 @@
-import { Column, Entity, JoinColumn, OneToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from "typeorm";
 import { AbstarctEntity } from "./abstart.entity";
 import { Address } from "./address.entity.";
+import { Department } from "./department.enity";
+export enum EmployeeRole {
+  UI = "UI",
+  UX = "UX",
+  DEVELOPER = "DEVELOPER",
+  HR = "HR",
+}
 
+export enum Status {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+  PROBATION = "PROBATION",
+}
 @Entity()
 class Employee extends AbstarctEntity {
   @Column({ unique: true })
@@ -10,17 +22,39 @@ class Employee extends AbstarctEntity {
   name: string;
 
   @Column()
+  employeeId: string;
+
+  @Column()
+  dateOfJoining: Date;
+
+  @Column()
+  experience: number;
+
+  @Column({
+    type: "enum",
+    enum: Status,
+    default: Status.ACTIVE,
+  })
+  @Column()
   age: number;
 
   @OneToOne(() => Address, (address) => address.employee, {
     cascade: true,
-    onDelete: "CASCADE",
   })
-  @JoinColumn()
   address: Address;
 
   @Column()
-  password: String;
+  password: string;
+
+  @Column({
+    type: "enum",
+    enum: EmployeeRole,
+    default: EmployeeRole.DEVELOPER,
+  })
+  role: EmployeeRole;
+
+  @ManyToOne(() => Department, (department) => department.employee)
+  department: Department;
 }
 
 export default Employee;

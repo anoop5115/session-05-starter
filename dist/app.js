@@ -31,16 +31,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
 const express_1 = __importDefault(require("express"));
 // import employeeRouter from "./employee_router";
-const loggerMiddleware_1 = __importDefault(require("./loggerMiddleware"));
+const loggerMiddleware_1 = __importDefault(require("./middlewares/loggerMiddleware"));
 const employee_route_1 = __importDefault(require("./routes/employee.route"));
 const data_source_1 = __importDefault(require("./db/data-source"));
-const errorMiddleware_1 = require("./errorMiddleware");
+const auth_route_1 = require("./routes/auth.route");
+const logging_service_1 = require("./services/logging.service");
+const department_route_1 = __importDefault(require("./routes/department.route"));
+const auth_middleware_1 = require("./middlewares/auth.middleware");
+const errorMiddleware_1 = require("./middlewares/errorMiddleware");
 // import datasource from "./data-source";
 const { Client } = require("pg");
+const logger = logging_service_1.LoggerService.getInstance("app()");
 const server = (0, express_1.default)();
 server.use(express_1.default.json());
 server.use(loggerMiddleware_1.default);
-server.use("/employee", employee_route_1.default);
+server.use("/auth", auth_route_1.authRouter);
+server.use("/employee", auth_middleware_1.authMiddleware, employee_route_1.default);
+server.use("/department", department_route_1.default);
 server.get("/", (req, res) => {
     console.log(req.url);
     res.status(200).send("Hello world typescript");
@@ -69,14 +76,14 @@ server.use(errorMiddleware_1.errorMiddleware);
 (() => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield data_source_1.default.initialize();
-        console.log("connected");
+        logger.info("connected");
     }
     catch (_a) {
-        console.error("failed to conned db");
+        logger.error("failed to conned db");
         process.exit(1);
     }
-    server.listen(3004, () => {
-        console.log("server listening to 3000");
+    server.listen(3006, () => {
+        logger.info("server listening to 3000");
     });
 }))();
 //# sourceMappingURL=app.js.map
